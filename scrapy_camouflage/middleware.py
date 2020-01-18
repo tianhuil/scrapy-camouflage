@@ -52,12 +52,9 @@ class CamouflageMiddleware(ABC):
     return response
 
   def process_request(self, request, spider):  # pylint: disable=unused-argument
-    if 'proxy' in request.meta:
-      return None
-    return request.replace(meta={
-      **request.meta,
-      'proxy': self.new_proxy(),
-    })
+    # add proxy if no proxy already specified
+    if 'proxy' not in request.meta:
+      request = self.new_request(request)
 
   def retry(self, request, reason, spider):
     retries = request.meta.get('retry_times', 0) + 1
