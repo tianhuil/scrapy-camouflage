@@ -36,4 +36,4 @@ Finally, add the following to `DOWNLOADER_MIDDLEWARES`:
 The only requirement on the priority is that it be less than that of `HttpProxyMiddleware` (default priority 750).  However, it is recommended that the priority be higher than that of `RedirectMiddleware` (default priority 600) if HTTP redirects are used to test for a block.
 
 ## TODOs
-- Allow use fake user agent
+- Allow use fake user agent (although some of their user agents belong to old browsers and are rejected by websites)
