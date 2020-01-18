@@ -4,7 +4,7 @@ Updates proxy and user agent if website is blocking [scrapy](https://scrapy.org/
 ## Install
 To install, run
 ```bash
-pip install -e git@github.com:tianhuil/scrapy-camouflage.git
+pip install -e git@github.com:tianhuil/scrapy-camouflage.git@latest
 ```
 
 ## Use
