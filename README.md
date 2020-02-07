@@ -35,7 +35,7 @@ Finally, add the following to `DOWNLOADER_MIDDLEWARES`:
 ```
 The only requirement on the priority is that it be *lower* than that of `HttpProxyMiddleware` (default priority 750).  Optionally, the priority
 - must be *higher* than that of `RedirectMiddleware` (default priority 600) if HTTP redirects are used to test for a block.
-- must be *lower* than that of `HttpCompressionMiddleware` (default priority 590) if you want to use `response.text` (or even to correctly use `response.body`) to test for content.  Use two middlewares if you want to test for both conditions.
+- must be *lower* than that of `HttpCompressionMiddleware` (default priority 590) if you want to use `response.text` (or even to correctly use `response.body`) to test for a block.  Use two middlewares if you want to test for both conditions.
 
 ## Dev
 See the `Makefile` for dev dependencies and commands.  In particular `make pylint`.
