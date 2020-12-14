@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 import logging
+from scrapy.downloadermiddlewares.retry import RetryMiddleware
 
 from .user_agent import random_user_agent
 
@@ -43,28 +44,37 @@ class CamouflageMiddleware(ABC):
       return response
 
     if self.is_block(request, response, spider):
-      original_url = request.url
-      logger.warning('Request to %s was blocked', original_url)
+      logger.warning('Request to %s was blocked', request.url)
       # reset session but with original (prior to any redirect) url
-      request = self.new_request(request, url=original_url)
-      return self.retry(request, reason='blocked', spider=spider) or response
+      request = self.new_request(request, url=request.url)
+      return self._retry(request, reason='blocked', spider=spider) or response
 
     return response
+
+  def process_exception(self, request, exception, spider):
+    if request.meta.get('dont_retry', False):
+      return None
+
+    if isinstance(exception, RetryMiddleware.EXCEPTIONS_TO_RETRY):
+      logger.warning('Request to %s timed out', request.url)
+      request = self.new_request(request, url=request.url)
+      return self._retry(request, reason=repr(exception), spider=spider)
+    return None
 
   def process_request(self, request, spider):  # pylint: disable=unused-argument
     # add proxy if no proxy already specified
     if 'proxy' not in request.meta:
       request = self.new_request(request)
 
-  def retry(self, request, reason, spider):
+  def _retry(self, request, reason, spider):
     retries = request.meta.get('retry_times', 0) + 1
     max_retry_times = request.meta.get('max_retry_times', self.max_retry_times)
 
     stats = spider.crawler.stats
     if retries <= max_retry_times:
       logger.debug(
-        "Retrying %(request)s (failed %(retries)d times): %(reason)s",
-        {'request': request, 'retries': retries, 'reason': reason},
+        "Retrying %(request)s (failed %(retries)d/%(max_retry_times)d times): %(reason)s",
+        {'request': request, 'retries': retries, 'reason': reason, 'max_retry_times': max_retry_times},
         extra={'spider': spider}
       )
       retry_req = request.copy()
