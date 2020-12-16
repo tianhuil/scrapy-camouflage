@@ -28,7 +28,7 @@ class CamouflageMiddleware(ABC):
     return random_user_agent()
 
   def new_request(self, request, url=None):
-    if not self.disable_proxy:
+    if self.disable_proxy:
       return request
 
     proxy = self.new_proxy()
