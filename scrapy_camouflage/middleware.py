@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 class CamouflageMiddleware(ABC):
   def __init__(self, settings):
     self.max_retry_times = settings.getint('CAMOUFLAGE_RETRY_TIMES')
+    self.disable_proxy = settings.getbool('CAMOUFLAGE_DISABLE_PROXY', False)
 
   @classmethod
   def from_crawler(cls, crawler):
@@ -27,6 +28,9 @@ class CamouflageMiddleware(ABC):
     return random_user_agent()
 
   def new_request(self, request, url=None):
+    if not self.disable_proxy:
+      return request
+
     proxy = self.new_proxy()
 
     proxy_request = request.copy()
